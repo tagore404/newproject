@@ -1,11 +1,12 @@
-# Use JDK-only image for runtime (smaller size)
-FROM eclipse-temurin:17-jdk
-
-# Create working directory
+# Stage 1: Build the application
+FROM eclipse-temurin:17-jdk as build
 WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
 
-# Copy built JAR from the build stage
+# Stage 2: Run the application
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-
-# Command to run the application
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
